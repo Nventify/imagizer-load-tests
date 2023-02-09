@@ -1,0 +1,58 @@
+---
+settings:
+  artifacts-dir: /tmp/jmeter_%H%M%S
+  env:
+    HOST1: 10.1.2.248
+    HOST2: 10.1.2.247
+    USERS: 20
+
+execution:
+  - concurrency: ${USERS}
+    ramp-up: 30s
+    hold-for: 2m
+    scenario: original
+  - concurrency: ${USERS}
+    ramp-up: 30s
+    hold-for: 2m
+    scenario: patched
+
+reporting:
+- module: blazemeter
+
+scenarios:
+  original:
+    data-sources:
+      - path: images.csv
+        delimiter: ','
+        quoted: false
+        encoding: "utf-8"
+        loop: true
+        variable-names: image
+        random-order: false
+
+    requests:
+    - url: http://${HOST1}:17007?redeye=true&colorize=red
+      method: POST
+      label: original
+      upload-files:
+        - param: file
+          path: ${image}
+
+  patched:
+    data-sources:
+      - path: images.csv
+        delimiter: ','
+        quoted: false
+        encoding: "utf-8"
+        loop: true
+        variable-names: image
+        random-order: false
+
+    requests:
+    - url: http://${HOST2}:17007?redeye=true&colorize=red
+      method: POST
+      label: patched
+      upload-files:
+        - param: file
+          path: ${image}
+
